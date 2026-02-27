@@ -1,0 +1,238 @@
+<html>
+  <head>
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="sidebar">
+        <div class="logo">
+          <strong>Admin Panel</strong>
+        </div>
+        <div class="nav-menu">
+          <ul>
+            <li class="active" data-page="dashboard-page">
+              <span class="icon">🏠</span>
+              <span class="text">Dashboard</span>
+            </li>
+            <li data-page="users-page">
+              <span class="icon">👥</span>
+              <span class="text">Users</span>
+            </li>
+            <li data-page="orders-page">
+              <span class="icon">📦</span>
+              <span class="text">Orders</span>
+            </li>
+            <li data-page="analytics-page">
+              <span class="icon">📊</span>
+              <span class="text">Analytics</span>
+            </li>
+            <li data-page="settings-page">
+              <span class="icon">⚙️</span>
+              <span class="text">Settings</span>
+            </li>
+          </ul>
+        </div>
+        <div class="bottom">
+          <span class="icon">🚪</span>
+          <span class="text">Logout</span>
+        </div>
+      </div>
+      <div class="main-content">
+        <div id="dashboard-page" class="page-active">
+          <div class="navbar">
+            <div class="nav-left">
+              <button class="toggle-btn">☰</button>
+              <h4>Dashboard</h4>
+            </div>
+            <div class="nav-right">
+              <button class="theme-toggle">🌙</button>
+              <h5>Admin</h5>
+            </div>
+          </div>
+          <div class="cards-section">
+            <div class="card1">
+              <p>Users</p>
+              <h4>2,450</h4>
+            </div>
+            <div class="card2">
+              <p>Income</p>
+              <h4>$6.200</h4>
+            </div>
+            <div class="card3">
+              <p>Conversion</p>
+              <h4>2.48%</h4>
+            </div>
+            <div class="card4">
+              <p>Sessions</p>
+              <h4>44k</h4>
+            </div>
+          </div>
+          <div class="chart-section">
+            <div class="chart-left">
+              <h4>Traffic Overview</h4>
+              <select id="daysFilter">
+                <option value="7">Last 7 Days</option>
+                <option value="30">Last 30 Days</option>
+              </select>
+              <div class="chart-placeholder" id="chart">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+              </div>
+            </div>
+            <div class="chart-right">
+              <h3>Recent Activity</h3>
+              <input
+                type="text"
+                id="activitySearch"
+                placeholder="Search activity..."
+              />
+              <input
+                type="text"
+                id="newActivityText"
+                placeholder="Enter activity..."
+              />
+              <button id="addActivity">+ Add Activity</button>
+              <div id="activity-list"></div>
+            </div>
+          </div>
+        </div>
+        <div id="users-page" class="page">
+          <h2>Users Page</h2>
+        </div>
+        <div id="orders-page" class="page">
+          <h2>Orders Page</h2>
+        </div>
+        <div id="analytics-page" class="page">
+          <h2>Analytics Page</h2>
+        </div>
+      </div>
+    </div>
+    <script>
+      const toggleBtn = document.querySelector(".toggle-btn");
+      const container = document.querySelector(".container");
+
+      toggleBtn.addEventListener("click", () => {
+        container.classList.toggle("collapsed");
+      });
+    </script>
+    <script>
+      const themeBtn = document.querySelector(".theme-toggle");
+
+      themeBtn.addEventListener("click", () => {
+        document.body.classList.toggle("dark");
+      });
+      const menuItems = document.querySelectorAll(".nav-menu ul li");
+      const pages = document.querySelectorAll(".page");
+
+      menuItems.forEach((item) => {
+        item.addEventListener("click", () => {
+          // remove active from all menu items
+          menuItems.forEach((i) => i.classList.remove("active"));
+          item.classList.add("active");
+
+          const targetPage = item.getAttribute("data-page");
+
+          pages.forEach((page) => page.classList.remove("active"));
+
+          document.getElementById(targetPage).classList.add("active");
+        });
+      });
+      const chartContainer = document.getElementById("chart");
+
+      function generateChart(days) {
+        chartContainer.innerHTML = "";
+
+        for (let i = 0; i < days; i++) {
+          const bar = document.createElement("div");
+          bar.classList.add("bar");
+
+          const randomHeight = Math.floor(Math.random() * 180) + 40;
+          bar.style.height = randomHeight + "px";
+
+          chartContainer.appendChild(bar);
+        }
+      }
+
+      generateChart(7);
+      const filter = document.getElementById("daysFilter");
+
+      filter.addEventListener("change", () => {
+        const days = filter.value;
+        generateChart(days);
+      });
+      let activities = JSON.parse(localStorage.getItem("activities")) || [
+        { text: "New user registered", time: "6 mins ago" },
+        { text: "New user registered", time: "24 mins ago" },
+        { text: "New user registered", time: "1 hr ago" },
+        { text: "New user registered", time: "2 hrs ago" },
+      ];
+      const activityList = document.getElementById("activity-list");
+      function renderActivities(list = activities) {
+        activityList.innerHTML = "";
+
+        list.forEach((activity) => {
+          const item = document.createElement("div");
+          item.classList.add("activity-item");
+
+          item.innerHTML = `
+            <div class="activity-left">
+              <div class="dot"></div>
+              <p>${activity.text}</p>
+            </div>
+            <div>
+              <span class="time">${activity.time}</span>
+              <button class="delete-btn">✖</button>
+            </div>
+          `;
+
+          activityList.appendChild(item);
+        });
+      }
+
+      renderActivities();
+      const addBtn = document.getElementById("addActivity");
+
+      const input = document.getElementById("newActivityText");
+
+      addBtn.addEventListener("click", () => {
+        if (input.value.trim() === "") return;
+
+        const newActivity = {
+          text: input.value,
+          time: new Date().toLocaleTimeString(),
+        };
+
+        activities.unshift(newActivity); // add to top
+        localStorage.setItem("activities", JSON.stringify(activities));
+        renderActivities();
+        input.value = "";
+      });
+      const searchInput = document.getElementById("activitySearch");
+
+      searchInput.addEventListener("input", () => {
+        const value = searchInput.value.toLowerCase();
+
+        const filtered = activities.filter((activity) =>
+          activity.text.toLowerCase().includes(value),
+        );
+
+        renderActivities(filtered);
+      });
+      activityList.addEventListener("click", (e) => {
+        if (e.target.classList.contains("delete-btn")) {
+          const item = e.target.closest(".activity-item");
+          const index = Array.from(activityList.children).indexOf(item);
+
+          activities.splice(index, 1);
+          localStorage.setItem("activities", JSON.stringify(activities));
+          renderActivities();
+        }
+      });
+    </script>
+  </body>
+</html>
